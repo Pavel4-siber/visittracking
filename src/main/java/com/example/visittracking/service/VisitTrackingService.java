@@ -35,11 +35,14 @@ public class VisitTrackingService {
 
     private final VisitRepository visitRepository;
 
+    private final EventGenerationService eventGenerationService;
+
     public VisitTrackingService(PatientRepository patientRepository, DoctorRepository doctorRepository,
-                                VisitRepository visitRepository) {
+                                VisitRepository visitRepository, EventGenerationService eventGenerationService) {
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.visitRepository = visitRepository;
+        this.eventGenerationService = eventGenerationService;
     }
 
     @Transactional
@@ -76,6 +79,8 @@ public class VisitTrackingService {
         visit.setEndDateTime(endDateTime);
         visit.setPatient(patient);
         visit.setDoctor(doctor);
+
+        eventGenerationService.createVisitEvent();
 
         Visit savedVisit = visitRepository.save(visit);
 
@@ -139,7 +144,7 @@ public class VisitTrackingService {
         PatientVisitsResponse response = new PatientVisitsResponse();
         response.setData(result);
         response.setCount(totalPatients);
-
+        eventGenerationService.getPatientVisitsEvent();
         return response;
     }
 
